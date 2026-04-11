@@ -1,10 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminController\TesterController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
 });
 
-Route::get('/test', [TesterController::class, 'index']);
+Route::get('/login', function () {
+    return view('login');
+});
+
+Route::get('/admin/login', function () {
+    return view('login');
+});
+
+

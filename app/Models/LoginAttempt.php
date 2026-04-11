@@ -6,5 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class LoginAttempt extends Model
 {
-    //
+    public $timestamps = false;
+    protected $fillable = ['email', 'ip_address', 'is_success'];
+    protected $dates = ['attempted_at'];
 }
