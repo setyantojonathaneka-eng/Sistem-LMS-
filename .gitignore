@@ -21,7 +21,13 @@
 /storage/pail
 /storage/framework/views/*
 !/storage/framework/views/.gitignore
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
 /vendor
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+/resources/css/
+/resources/js/
+/resources/views/
