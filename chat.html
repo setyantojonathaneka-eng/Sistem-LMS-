@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat - Invest to Your Learning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tailwind.config.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet" />
+
+    <script type="module" src="./components/sidebar.js"></script>
+    <script src="components/auth/logged.js"></script>
+    <script src="components/enroll-modal.js"></script>
+  </head>
+
+  <body class="bg-mainBg h-screen flex overflow-hidden text-gray-800">
+    <!-- Sidebar reusable -->
+    <app-sidebar></app-sidebar>
+
+    <main class="flex-1 p-8 overflow-y-auto custom-scroll relative">
+      <h1 class="text-4xl font-extrabold text-primary mb-6 tracking-wide drop-shadow-sm">Ga Paham Chat? Tanya dosenmu aja!</h1>
+
+      <div id="chatList" class="space-y-3"></div>
+    </main>
+
+    <div id="sidebar-container" class="m-2">
+      <logged-user></logged-user>
+    </div>
+
+    <enroll-modal></enroll-modal>
+
+    <script>
+      const chatData = {
+        'Artificial Intelligence': [
+          {
+            sender: 'Sondy',
+            message:
+              'Selamat pagi, Pak.\nPerkenalkan saya Sondy dari prodi Informatika. Mohon maaf mengganggu waktunya, saya ingin bertanya terkait materi AI yang kemarin dijelaskan.\nSaya masih agak bingung di bagian Machine learning. Apakah Bapak/Ibu bisa menjelaskan sedikit atau mungkin ada referensi tambahan yang bisa saya pelajari? Terima kasih sebelumnya, Pak/Bu.',
+            bgColor: '#768C9E'
+          },
+          {
+            sender: 'Dosen',
+            message: 'Silakan dipelajari kembali materi yang sudah diberikan di kelas atau slide. Jika masih kurang jelas, kamu bisa membaca referensi tambahan dari buku atau sumber lain yang relevan.\nJika masih ada pertanyaan, silakan ditanyakan kembali.',
+            bgColor: '#5E68A8'
+          }
+        ],
+        'Digital Marketing': [
+          {
+            sender: 'Sondy',
+            message: 'Permisi, Bu. Saya mau bertanya mengenai tugas SEO campaign. Apakah laporan akhir harus dipublish secara live di website?',
+            bgColor: '#768C9E'
+          },
+          {
+            sender: 'Dosen',
+            message: 'Betul, pastikan sudah live dan kirimkan link-nya di laporan agar bisa saya cek dan nilai secara langsung.',
+            bgColor: '#5E68A8'
+          }
+        ],
+        'Business Intelligence': [
+          {
+            sender: 'Sondy',
+            message: 'Pak, untuk tools visualisasi datanya apakah wajib menggunakan Tableau? Karena di laptop saya agak berat.',
+            bgColor: '#768C9E'
+          },
+          {
+            sender: 'Dosen',
+            message: 'Sebaiknya iya, karena materi ujian praktik minggu depan akan berfokus pada fitur-fitur spesifik yang ada di Tableau. Bisa gunakan lab kampus jika terkendala device.',
+            bgColor: '#5E68A8'
+          }
+        ]
+      }
+
+      const listChat = ['Artificial Intelligence - Monday', 'Digital Marketing - Tuesday', 'Business Intelligence - Tuesday']
+
+      // Render List Chat di area tengah
+      const chatContainer = document.getElementById('chatList')
+      listChat.forEach((chat) => {
+        const btn = document.createElement('button')
+        btn.className = 'w-full bg-[#3A7DEC] hover:bg-blue-600 text-white font-extrabold text-left py-4 px-6 rounded-full shadow-md transition-all text-lg tracking-wide'
+        btn.innerHTML = `<span class="border-b-2 border-white/50 pb-0.5">${chat}</span>`
+
+        btn.onclick = () => renderSidebarDetail(chat)
+        chatContainer.appendChild(btn)
+      })
+
+      // Fungsi Render Sidebar Kanan (Mode Chat)
+      function renderSidebarDetail(courseFullName) {
+        const courseName = courseFullName.split('-')[0].trim()
+        const container = document.getElementById('sidebar-container')
+
+        const courseChats = chatData[courseName] || []
+
+        const chatHTML = courseChats
+          .map(
+            (chat) => `
+          <div class="mb-6">
+            <h3 class="font-extrabold text-[#374151] text-lg mb-1">${chat.sender}</h3>
+            <div class="relative text-white p-5 rounded-3xl rounded-bl-md shadow-sm" style="background-color: ${chat.bgColor};">
+              <p class="whitespace-pre-line font-bold leading-relaxed text-md">${chat.message}</p>
+              
+              <svg class="absolute -bottom-2 left-0 w-4 h-4" viewBox="0 0 100 100" style="color: ${chat.bgColor};">
+                <polygon points="0,0 100,0 0,100" fill="currentColor"></polygon>
+              </svg>
+            </div>
+          </div>
+        `
+          )
+          .join('')
+
+        container.innerHTML = `
+          <aside class="w-[24rem] h-full flex flex-col bg-[#78A2CC] shadow-2xl relative animate-fade-in overflow-hidden border-[10px] border-[#78A2CC] rounded-[1.5rem]">
+            
+            <div class="relative flex items-center justify-between pb-3 px-4 pt-2">
+              <h2 class="text-2xl font-black text-[#F4F1ED] tracking-wide drop-shadow-sm truncate">${courseName}</h2>
+              <button onclick="renderSidebarDefault()" class="text-white hover:text-red-500 font-bold text-3xl drop-shadow-md transition-transform hover:scale-110 ml-2">&times;</button>
+            </div>
+
+            <div class="flex-1 bg-[#F2F4F6] p-6 overflow-y-auto custom-scroll flex flex-col rounded-t-[1.5rem]">
+              ${courseChats.length > 0 ? chatHTML : '<p class="text-center font-bold text-gray-400 mt-10">Belum ada percakapan.</p>'}
+            </div>
+
+          </aside>
+        `
+      }
+
+      function renderSidebarDefault() {
+        const container = document.getElementById('sidebar-container')
+        container.innerHTML = `<logged-user></logged-user>`
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Materi Pembelajaran - Invest to Your Learning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tailwind.config.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet" />
+
+    <script type="module" src="./components/sidebar.js"></script>
+    <script src="components/auth/logged.js"></script>
+    <script src="components/enroll-modal.js"></script>
+  </head>
+
+  <body class="bg-mainBg h-screen flex overflow-hidden text-gray-800">
+    <!-- Sidebar reusable -->
+    <app-sidebar></app-sidebar>
+
+    <main class="flex-1 p-8 overflow-y-auto custom-scroll relative">
+      <h1 class="text-4xl font-extrabold text-primary mb-6 tracking-wide drop-shadow-sm">MATERI PEMBELAJARAN</h1>
+
+      <div id="materiList" class="space-y-3"></div>
+    </main>
+
+    <div id="sidebar-container" class="m-2">
+      <logged-user></logged-user>
+    </div>
+
+    <div id="uploadModal" class="fixed inset-0 z-50 hidden items-center justify-center transition-opacity duration-300">
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal()"></div>
+
+      <div class="relative flex flex-col items-center justify-center w-[90%] max-w-3xl bg-[#78A2CC]/85 backdrop-blur-md rounded-[2.5rem] shadow-2xl py-16 px-8 border border-white/20 animate-fade-in">
+        <button onclick="closeModal()" class="absolute top-6 right-8 text-white hover:text-red-500 text-5xl font-bold transition-transform hover:scale-110">&times;</button>
+
+        <div onclick="document.getElementById('fileInput').click()" class="cursor-pointer group flex flex-col items-center">
+          <svg class="w-40 h-40 md:w-56 md:h-56 text-[#F0EAE4] group-hover:-translate-y-4 transition-transform duration-300 drop-shadow-2xl" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+
+          <h2 class="mt-8 text-2xl md:text-4xl font-black text-[#2C4A5E] uppercase tracking-widest border-b-4 border-[#2C4A5E] pb-1 drop-shadow-sm">UPLOAD FILE TUGASMU</h2>
+
+          <p id="modalCourseName" class="mt-5 text-white font-extrabold text-2xl drop-shadow-md tracking-wide"></p>
+
+          <input type="file" id="fileInput" class="hidden" onchange="handleFileUpload(event)" />
+        </div>
+      </div>
+    </div>
+
+    <enroll-modal></enroll-modal>
+
+    <script>
+      // Data Dummy Materi
+      const listMateri = ['Artificial Intelligence - Monday', 'Professionals Development - Monday', 'Digital Marketing - Tuesday', 'Mandarin Language - Tuesday', 'Business Intelligence - Tuesday', 'Management Info. System - Wednesday', 'Network Architecture & Security - Wednesday', 'Web Programming 2 - Thursday']
+
+      const materiContainer = document.getElementById('materiList')
+      listMateri.forEach((materi) => {
+        const btn = document.createElement('button')
+        btn.className = 'w-full bg-[#3A7DEC] hover:bg-blue-600 text-white font-extrabold text-left py-4 px-6 rounded-full shadow-md transition-all text-lg tracking-wide'
+        btn.innerHTML = `<span class="border-b-2 border-white/50 pb-0.5">${materi}</span>`
+
+        btn.onclick = () => renderSidebarDetail(materi)
+        materiContainer.appendChild(btn)
+      })
+
+      function renderSidebarDetail(courseFullName) {
+        const courseName = courseFullName.split('-')[0].trim()
+        const container = document.getElementById('sidebar-container')
+
+        container.innerHTML = `
+          <aside class="w-[24rem] rounded-[1.5rem] bg-sidebarRight p-6 flex flex-col h-full overflow-y-auto text-primary shadow-xl relative animate-fade-in">
+            <button onclick="renderSidebarDefault()" class="absolute top-4 right-4 text-white hover:text-red-500 font-bold text-2xl drop-shadow-md transition-transform hover:scale-110">&times;</button>
+            
+            <h2 class="text-3xl font-black text-red-600 tracking-wider leading-tight drop-shadow-sm mt-4">PERINGATAN!</h2>
+            <p class="text-xl font-extrabold text-[#2C4A5E] mb-6">ADA DEADLINE NIH</p>
+
+            <div class="space-y-2 flex-1">
+              <div class="bg-primary text-white p-5 rounded-[2rem] shadow-lg relative overflow-hidden group">
+                <h3 class="font-extrabold text-xl leading-tight">Tugas ${courseName}</h3>
+                <p class="text-sm font-bold text-gray-200 mt-1 mb-5">Deadline: Senin, 6 April 2026</p>
+              </div>
+
+              <button onclick="openModal('${courseFullName}')" class="w-full bg-primary hover:bg-[#4A538D] text-white font-extrabold py-3 rounded-full shadow-md transition-all transform hover:scale-[1.02]">
+                Kumpulin Tugasmu
+              </button>
+            </div>
+
+            <div class="bg-primary rounded-[2rem] p-6 mt-6 shadow-lg">
+              <h3 class="text-white font-extrabold text-xl mb-4 text-center tracking-wide">Tugasmu udah selesai:</h3>
+              <div class="flex items-center gap-4">
+                <div class="w-full bg-[#E5E7EB] rounded-full h-6 overflow-hidden flex">
+                  <div class="bg-[#DC2626] h-full w-[65%] rounded-full"></div>
+                </div>
+                <span class="text-white font-black text-4xl drop-shadow-md">65%</span>
+              </div>
+            </div>
+          </aside>
+        `
+      }
+
+      function renderSidebarDefault() {
+        const container = document.getElementById('sidebar-container')
+        container.innerHTML = `<logged-user></logged-user>`
+      }
+
+      function openModal(courseName) {
+        const modal = document.getElementById('uploadModal')
+        const courseText = document.getElementById('modalCourseName')
+
+        courseText.innerText = courseName
+
+        modal.classList.remove('hidden')
+        modal.classList.add('flex')
+
+        document.body.style.overflow = 'hidden'
+      }
+
+      function closeModal() {
+        const modal = document.getElementById('uploadModal')
+
+        modal.classList.add('hidden')
+        modal.classList.remove('flex')
+
+        document.body.style.overflow = ''
+      }
+
+      function handleFileUpload(event) {
+        const file = event.target.files[0]
+        if (file) {
+          alert('File [' + file.name + '] siap diunggah!\n\n(Simulasi UI Selesai)')
+          closeModal()
+        }
+      }
+    </script>
+  </body>
+</html>

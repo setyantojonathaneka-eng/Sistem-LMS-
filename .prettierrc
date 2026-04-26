@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/prettierrc",
+  "printWidth": 350,
+  "max-len": [
+    2,
+    {
+      "code": 400,
+      "tabWidth": 2,
+      "ignoreUrls": true,
+      "ignoreStrings": true
+    }
+  ],
+  "semi": false,
+  "singleQuote": true,
+  "htmlWhitespaceSensitivity": "ignore",
+  "trailingComma": "none",
+  "bracketSpacing": true
+}

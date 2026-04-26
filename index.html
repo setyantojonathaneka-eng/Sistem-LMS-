@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Invest to Your Learning</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tailwind.config.js"></script>
+
+    <script type="module" src="./components/sidebar.js"></script>
+    <script type="module" src="./components/auth/index.js"></script>
+    <script src="components/auth/logged.js"></script>
+    <script src="components/auth/modal.js"></script>
+    <script src="components/enroll-modal.js"></script>
+  </head>
+
+  <body class="bg-background text-primary h-screen flex overflow-hidden antialiased">
+    <!-- Sidebar reusable -->
+    <app-sidebar></app-sidebar>
+
+    <main class="flex-1 overflow-y-auto px-12 py-10">
+      <h1 class="text-5xl font-bold font-cursive text-sidebarLeft tracking-wider mb-10">Invest to your Learning</h1>
+
+      <section class="mb-14">
+        <h2 class="text-4xl font-bold text-sidebarLeft mb-6">Siap buat belajar lebih lagi?</h2>
+        <button class="bg-cardBlue hover:bg-blue-600 text-white text-sm font-semibold py-3 px-8 rounded-full shadow-md transition-colors inline-flex items-center">
+          <span class="underline decoration-1 underline-offset-4">Download materi dari dosen disini</span>
+        </button>
+      </section>
+
+      <section>
+        <h2 class="text-3xl font-bold text-sidebarLeft mb-6">Atau cari pelajaran lain yang menarik?</h2>
+
+        <div class="flex flex-col md:flex-row gap-6 max-w-4xl">
+          <div class="flex-1 bg-cardBlue text-white rounded-3xl p-8 shadow-lg hover:-translate-y-1 transition-transform">
+            <h3 class="text-3xl font-bold mb-4 opacity-90">Cloud Computing</h3>
+            <p class="text-base leading-relaxed font-semibold">Belajar Cloud Computing buat nyimpen dan jalanin aplikasimu di server internet</p>
+          </div>
+
+          <div class="flex-1 bg-cardBlue text-white rounded-3xl p-8 shadow-lg hover:-translate-y-1 transition-transform">
+            <h3 class="text-3xl font-bold mb-4 opacity-90">Game Development</h3>
+            <p class="text-base leading-relaxed font-semibold">Game Development belajar bikin game, bukan cuma main aja</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="sidebar-container" class="m-2">
+      <auth-user></auth-user>
+    </div>
+
+    <auth-modal></auth-modal>
+    <enroll-modal></enroll-modal>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('login-success', () => {
+          const sidebarContainer = document.getElementById('sidebar-container')
+          sidebarContainer.innerHTML = '<logged-user></logged-user>'
+        })
+      })
+    </script>
+  </body>
+</html>

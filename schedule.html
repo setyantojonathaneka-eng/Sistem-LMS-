@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat - Invest to Your Learning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tailwind.config.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet" />
+
+    <script type="module" src="./components/sidebar.js"></script>
+  </head>
+
+  <body class="bg-mainBg h-screen flex overflow-hidden text-gray-800">
+    <!-- Sidebar reusable -->
+    <app-sidebar></app-sidebar>
+
+    <main class="flex-1 p-8 overflow-y-auto custom-scroll relative">
+      <h1 class="text-4xl font-extrabold text-primary mb-6 tracking-wide drop-shadow-sm">JADWAL PERKULIAHAN</h1>
+
+      <div id="jadwal-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+    </main>
+
+    <script>
+      // Data Dummy Jadwal
+      const jadwalData = [
+        { time: '08.50 - 12.10', date: 'Monday', course: 'Artificial Intelligence Class', room: 'Lab. Komputer Lantai 1' },
+        { time: '13.50 - 15.30', date: 'Monday', course: 'Prof. Development Class', room: 'Ruang Kelas 13' },
+        { time: '13.50 - 15.30', date: 'Monday', course: 'Prof. Development Class', room: 'Ruang Kelas 13' },
+        { time: '08.50 - 12.10', date: 'Monday, 3 Aug 2026', course: 'Artificial Intelligence Class', room: 'Lab. Komputer Lantai 1' },
+        { time: '13.50 - 15.30', date: 'Monday, 3 Aug 2026', course: 'Prof. Development Class', room: 'Ruang Kelas 13' },
+        { time: '13.50 - 15.30', date: 'Monday, 3 Aug 2026', course: 'Prof. Development Class', room: 'Ruang Kelas 13' },
+        { time: '08.50 - 12.10', date: 'Monday, 3 Aug 2026', course: 'Artificial Intelligence Class', room: 'Lab. Komputer Lantai 1' },
+        { time: '13.50 - 15.30', date: 'Monday, 3 Aug 2026', course: 'Prof. Development Class', room: 'Ruang Kelas 13' },
+        { time: '13.50 - 15.30', date: 'Monday, 3 Aug 2026', course: 'Prof. Development Class', room: 'Ruang Kelas 13' }
+      ]
+
+      // Fungsi untuk me-render kotak jadwal
+      const container = document.getElementById('jadwal-container')
+
+      const cardsHTML = jadwalData
+        .map(
+          (item) => `
+        <a href="materi-download.html" class="block bg-cardBlue rounded-[1.25rem] p-6 text-white hover:bg-blue-600 transition-all duration-300 transform hover:-translate-y-1.5 shadow-md hover:shadow-xl group">
+          <div class="flex flex-col space-y-4">
+            
+            <div class="flex items-center gap-3">
+              <svg class="w-6 h-6 text-[#F0EAE4] group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"></path>
+              </svg>
+              <span class="font-semibold text-lg tracking-wide text-gray-100">${item.time}</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <svg class="w-6 h-6 text-[#F0EAE4] group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span class="font-medium text-[16px] text-gray-200">${item.date}</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <svg class="w-6 h-6 text-[#F0EAE4] group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span class="font-medium text-[16px] text-gray-200">${item.course}</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <svg class="w-6 h-6 text-[#F0EAE4] group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span class="font-medium text-[16px] text-gray-200">${item.room}</span>
+            </div>
+
+          </div>
+        </a>
+      `
+        )
+        .join('')
+
+      container.innerHTML = cardsHTML
+    </script>
+  </body>
+</html>
