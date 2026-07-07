@@ -12,30 +12,30 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+
     // Register
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
-            'email'=> 'required|email|unique:users',
-            'password'=> 'required|min:6|confirmed',
-            'role' => 'in:student,instructor,admin',
+            'name'     => 'required|string|max:100',
+            'email'    => 'required|email|unique:users',
+            'password' => 'required|min:6|confirmed',
+            'role'     => 'in:student,instructor,admin',
         ]);
 
         $user = User::create([
-            'name'=> $request->name,
-            'email'=> $request->email,
-            'password'=> Hash::make($request->password),
-            'role'=> $request->role ?? 'student',
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'role'     => $request->role ?? 'student',
         ]);
 
-        // Kirim OTP verifikasi email
         $otp = OtpCode::create([
             'user_id'    => $user->id,
-            'email'      => $user->email, 
+            'email'      => $user->email,
             'code'       => rand(100000, 999999),
             'type'       => 'email_verification',
-            'expires_at' => now()->addMinutes(20), 
+            'expires_at' => now()->addMinutes(5),
         ]);
 
         $user->notify(new OtpNotification($otp->code));
@@ -43,7 +43,7 @@ class AuthController extends Controller
         return response()->json([
             'message'  => 'Register berhasil, cek email untuk verifikasi',
             'user'     => $user,
-            'otp_code' => $otp->code, 
+            'otp_code' => $otp->code,
         ], 201);
     }
 
@@ -79,7 +79,7 @@ class AuthController extends Controller
         ]);
     }
 
-    // Login
+    // API Login
     public function login(Request $request)
     {
         $request->validate([
@@ -87,7 +87,6 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        // Cek apakah IP diblokir
         if (LoginAttempt::isBlocked($request->ip())) {
             return response()->json([
                 'message' => 'Terlalu banyak percobaan login. Coba lagi dalam 10 menit.'
@@ -124,11 +123,10 @@ class AuthController extends Controller
         ]);
     }
 
-    // Logout
+    // API Logout
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-
         return response()->json(['message' => 'Logout berhasil']);
     }
 
@@ -152,14 +150,70 @@ class AuthController extends Controller
             'email'      => $user->email,
             'code'       => rand(100000, 999999),
             'type'       => 'email_verification',
-            'expires_at' => now()->addMinutes(20), 
+            'expires_at' => now()->addMinutes(5),
         ]);
 
         $user->notify(new OtpNotification($otp->code));
 
         return response()->json([
             'message'  => 'OTP baru telah dikirim.',
-            'otp_code' => $otp->code, 
+            'otp_code' => $otp->code,
         ]);
+    }
+
+    // ==================== WEB ====================
+
+    // Web Login
+    public function webLogin(Request $request)
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (LoginAttempt::isBlocked($request->ip())) {
+            return back()->withErrors([
+                'email' => 'Terlalu banyak percobaan login. Coba lagi dalam 10 menit.'
+            ]);
+        }
+
+        $success = Auth::attempt($request->only('email', 'password'), $request->boolean('remember'));
+
+        LoginAttempt::create([
+            'user_id'      => $success ? Auth::id() : null,
+            'ip_address'   => $request->ip(),
+            'user_agent'   => $request->userAgent(),
+            'status'       => $success ? 'success' : 'failed',
+            'attempted_at' => now(),
+        ]);
+
+        if (!$success) {
+            return back()->withErrors(['email' => 'Email atau password salah.']);
+        }
+
+        $user = Auth::user();
+
+        if (!$user->is_verified) {
+            Auth::logout();
+            return back()->withErrors(['email' => 'Email belum diverifikasi. Cek email untuk kode OTP.']);
+        }
+
+        $request->session()->regenerate();
+
+        return match($user->role) {
+            'admin'      => redirect()->route('admin.dashboard'),
+            'instructor' => redirect()->route('admin.dashboard'),
+            'student'    => redirect()->route('student.dashboard'),
+            default      => redirect('/'),
+        };
+    }
+
+    // Web Logout
+    public function webLogout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login');
     }
 }

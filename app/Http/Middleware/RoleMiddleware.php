@@ -9,8 +9,11 @@ class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, string ...$roles): mixed
     {
-        if (!in_array($request->user()->role, $roles)) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        if (!$request->user() || !in_array($request->user()->role, $roles)) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+            abort(403, 'Unauthorized');
         }
 
         return $next($request);

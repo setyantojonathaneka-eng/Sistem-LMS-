@@ -13,7 +13,8 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name', 'email', 'password', 'role',
-        'avatar', 'is_active', 'email_verified_at', 'is_verified',
+        'photo', 'avatar', 'is_active', 'email_verified_at', 'is_verified',
+        'language', 'notifications_enabled',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -38,4 +39,21 @@ class User extends Authenticatable
     public function lessonProgress() { return $this->hasMany(LessonProgress::class); }
     public function otpCodes()       { return $this->hasMany(OtpCode::class); }
     public function loginAttempts()  { return $this->hasMany(LoginAttempt::class); }
+
+    public function getPhotoUrlAttribute()
+    {
+        $path = $this->photo ?? $this->avatar;
+        return $path ? \Illuminate\Support\Facades\Storage::url($path) : null;
+    }
+
+    public function getInitialsAttribute()
+    {
+        $name = $this->name ?? 'U';
+        $parts = explode(' ', $name);
+        $initials = '';
+        foreach ($parts as $p) {
+            if (!empty(trim($p))) $initials .= strtoupper($p[0]);
+        }
+        return substr($initials, 0, 2);
+    }
 }

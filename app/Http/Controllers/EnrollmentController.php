@@ -24,9 +24,9 @@ class EnrollmentController extends Controller
         }
 
         $enrollment = Enrollment::create([
-            'user_id'   => auth()->id(),
-            'course_id' => $course->id,
-            'progress'  => 0,
+            'user_id'             => auth()->id(),
+            'course_id'           => $course->id,
+            'progress_percentage' => 0,
         ]);
 
         auth()->user()->notify(new EnrollmentNotification($course));
@@ -77,7 +77,7 @@ class EnrollmentController extends Controller
 
         return response()->json([
             'enrolled'   => true,
-            'progress'   => $enrollment->progress,
+            'progress'   => $enrollment->progress_percentage,
             'created_at' => $enrollment->created_at,
         ]);
     }
@@ -110,7 +110,7 @@ class EnrollmentController extends Controller
         ]);
 
         $enrollment->update([
-            'progress' => $request->progress,
+            'progress_percentage' => $request->progress,
         ]);
 
         return response()->json([

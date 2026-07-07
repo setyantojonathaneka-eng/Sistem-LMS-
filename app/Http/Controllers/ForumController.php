@@ -3,15 +3,58 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\Enrollment;
 use App\Models\ForumPost;
 use Illuminate\Http\Request;
 
 class ForumController extends Controller
 {
-    // GET /api/courses/{course}/forum — list post di course
-    public function index(Course $course)
+    public function webIndex()
     {
-        // Cek enrollment
+        $courses = Course::whereHas('enrollments', function ($q) {
+            $q->where('user_id', auth()->id())->where('status', 'active');
+        })->orWhere('instructor_id', auth()->id())->with('forumPosts')->get();
+
+        $forumCourses = $courses->map(fn($c) => [
+            'id'         => $c->id,
+            'title'      => $c->title,
+            'post_count' => $c->forumPosts->count(),
+        ])->values();
+
+        return view('forum.index', compact('forumCourses'));
+    }
+
+    // Web: GET /forum/{course} — chat bubble view per course
+    public function webShow(Course $course)
+    {
+        $courses = Course::whereHas('enrollments', function ($q) {
+            $q->where('user_id', auth()->id())->where('status', 'active');
+        })->orWhere('instructor_id', auth()->id())->get();
+
+        return view('forum.chat', compact('course', 'courses'));
+    }
+
+    public function webStore(Request $request)
+    {
+        $request->validate([
+            'course_id' => 'required|exists:courses,id',
+            'title'     => 'required|string|max:255',
+            'body'      => 'required|string',
+        ]);
+
+        ForumPost::create([
+            'user_id'   => auth()->id(),
+            'course_id' => $request->course_id,
+            'title'     => $request->title,
+            'body'      => $request->body,
+        ]);
+
+        return redirect()->route('forum.index')->with('success', 'Post berhasil dibuat!');
+    }
+    // GET /api/courses/{course}/forum — list post di course
+    // ?since=2026-07-07T12:00:00 — hanya kirim post setelah waktu itu (polling)
+    public function index(Course $course, Request $request)
+    {
         $isEnrolled = $course->enrollments()
             ->where('user_id', auth()->id())
             ->where('status', 'active')
@@ -25,15 +68,14 @@ class ForumController extends Controller
             ], 403);
         }
 
-        // Ambil hanya post utama (bukan reply)
-        $posts = ForumPost::with([
-            'user:id,name,avatar',
-            'replies.user:id,name,avatar',
-        ])
-        ->where('course_id', $course->id)
-        ->whereNull('parent_id')
-        ->latest()
-        ->paginate(10);
+        $query = ForumPost::with('user:id,name,avatar,role')
+            ->where('course_id', $course->id);
+
+        if ($request->since) {
+            $query->where('created_at', '>', $request->since);
+        }
+
+        $posts = $query->orderBy('created_at')->take(100)->get();
 
         return response()->json($posts);
     }

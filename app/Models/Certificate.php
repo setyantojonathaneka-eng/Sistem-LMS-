@@ -3,12 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory; // ← tambah
+use Illuminate\Database\Eloquent\Factories\HasFactory; 
 use Illuminate\Support\Str;
 
 class Certificate extends Model
 {
-    use HasFactory; // ← tambah
+    use HasFactory; 
 
     protected $fillable = [
         'user_id', 'course_id', 'certificate_number',
